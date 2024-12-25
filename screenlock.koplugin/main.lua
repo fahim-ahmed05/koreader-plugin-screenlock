@@ -129,14 +129,12 @@ end
 -- MAIN MENU ENTRY
 ------------------------------------------------------------------------------
 function ScreenLock:addToMainMenu(menu_items)
-    if not self.ui.view then
-        menu_items.screenlock_inputdialog_buttons = {
-            text = _("Lock Screen"),
-            callback = function()
-                self:lockScreen()
-            end
-        }
-    end
+   menu_items.screenlock_inputdialog_buttons = {
+       text = _("Lock Screen"),
+       callback = function()
+           self:lockScreen()
+       end
+  }
 end
 
 return ScreenLock
