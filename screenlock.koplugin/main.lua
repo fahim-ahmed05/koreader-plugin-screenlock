@@ -12,6 +12,7 @@ local ScreenLock = WidgetContainer:extend{
 
     locked   = false,      -- Track locked state
     password = "1234",     -- Your hard-coded password
+    hide_content = true,   -- Hide screen content before password is entered
 }
 
 ------------------------------------------------------------------------------
@@ -59,49 +60,46 @@ end
 function ScreenLock:showPasswordPrompt()
     local dialog
     dialog = InputDialog:new{
-        title     = _("Enter Password"),
-        input     = "",
-        maskinput = true,
-        hint      = _("Password"),
-        buttons   = {
+        title           = _("Enter Password"),
+        input           = "",
+        maskinput       = true,
+        hint            = _("Password"),
+        fullscreen      = self.hide_content,        -- request full screen mode
+        use_available_height = self.hide_content,   -- use available screen height even when keyboard is shown
+        buttons         = {
             {
-                -- CANCEL => Reopen dialog (cannot escape)
                 {
                     text = _("Cancel"),
                     callback = function()
                         UIManager:show(
                             InfoMessage:new{
                                 text = _("You must enter the correct password!"),
-                                timeout = 1    -- Dismiss after 1 second
+                                timeout = 1
                             }
                         )
                         UIManager:close(dialog)
-                        -- Reopen the password prompt
                         self:showPasswordPrompt()
                     end
                 },
-                -- OK => Check password
                 {
                     text = _("OK"),
                     is_enter_default = true,
                     callback = function()
                         local userInput = dialog:getInputText()
                         if userInput == self.password then
-                            -- Correct => Unlock and show success InfoMessage
                             self.locked = false
                             UIManager:close(dialog)
                             UIManager:show(
                                 InfoMessage:new{
-                                    text    = _("Screen unlocked."),
-                                    timeout = 1    -- Dismiss after 1 second
+                                    text = _("Screen unlocked."),
+                                    timeout = 1
                                 }
                             )
                         else
-                            -- Wrong => Show error InfoMessage and re-display prompt
                             UIManager:show(
                                 InfoMessage:new{
-                                    text    = _("Wrong password! Try again."),
-                                    timeout = 1    -- Dismiss after 1 second
+                                    text = _("Wrong password! Try again."),
+                                    timeout = 1
                                 }
                             )
                             UIManager:close(dialog)
@@ -112,7 +110,6 @@ function ScreenLock:showPasswordPrompt()
             }
         },
     }
-
     UIManager:show(dialog)
     dialog:onShowKeyboard()  -- Immediately open the on-screen keyboard
 end
@@ -138,4 +135,3 @@ function ScreenLock:addToMainMenu(menu_items)
 end
 
 return ScreenLock
-
