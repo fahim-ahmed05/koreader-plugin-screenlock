@@ -63,6 +63,7 @@ function ScreenLock:showPasswordPrompt()
         title           = _("Enter Password"),
         input           = "",
         maskinput       = true,
+        text_type = "password",
         hint            = _("Password"),
         fullscreen      = self.hide_content,        -- request full screen mode
         use_available_height = self.hide_content,   -- use available screen height even when keyboard is shown
