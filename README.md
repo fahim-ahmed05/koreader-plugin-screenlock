@@ -2,10 +2,8 @@
 This plugin lets you lock your screen with a password, either triggered from the menu or automatically upon device wake-up.
 
 >
-> [!CAUTION]  
-> This plugin is made for basic protection, not security — it may not protect your device from an experienced attacker.
->
-> Always keep your device out of the hands of real threats.
+> # [!CAUTION]  
+> **This plugin is made for basic protection, not security — it may not protect your device from an experienced attacker. Always keep your device out of the hands of real threats.**
 >
 
 ## Setup
