@@ -11,4 +11,4 @@ This plugin lets you lock your screen with a password, either triggered from the
 2. Change the hardcoded password at the top of the `main.lua` from `1234` to something else.
 
 ## Note
-The plugin will automatically activate on resume from suspend. There is also a screenlock menu entry added.
+The plugin will automatically activate on resume from suspend. There is also a **Screen Lock** menu entry.
