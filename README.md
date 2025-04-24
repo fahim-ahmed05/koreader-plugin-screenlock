@@ -1,10 +1,11 @@
-# screenlock_koreader_plugin
-This is a small plugin to enable locking the screen of the KOReader.
+# KOReader Plugin: ScreenLock
+This plugin lets you lock your screen with a password, either triggered from the menu or automatically upon device wake-up.
 
 ## Setup
 1. Put `screenlock.koplugin` into the `kodreader/plugins` directory.
-2. Change the hardcoded password at the top of the main.lua from 1234 to something else.
+2. Change the hardcoded password at the top of the `main.lua` from `1234` to something else.
 
+## Note
 The plugin will automatically activate on resume from suspend. There is also a screenlock menu entry added.
 
 > [!CAUTION]  
