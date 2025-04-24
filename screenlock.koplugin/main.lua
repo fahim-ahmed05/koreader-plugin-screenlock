@@ -37,8 +37,10 @@ function ScreenLock:init()
     -- 2) Add to main menu
     self.ui.menu:registerToMainMenu(self)
 
-    -- 3) Override onResume to handle device wake-up
-    function self:onResume()
+    -- 3) Safe onResume override to handle device wake-up
+    local originalResume = self.onResume
+    self.onResume = function(self)
+        if originalResume then originalResume(self) end
         if not self.locked then
             self:lockScreen()
         end
@@ -67,34 +69,37 @@ function ScreenLock:showPasswordPrompt()
         hint = _("Password"),
         fullscreen = self.hide_content, -- request full screen mode
         use_available_height = self.hide_content, -- use available screen height even when keyboard is shown
-        buttons = {{{
-            text = _("Cancel"),
-            callback = function()
-                UIManager:show(InfoMessage:new{
-                    text = _("You must enter the correct password!"),
-                    timeout = 1
-                })
-                UIManager:close(dialog)
-                self:showPasswordPrompt()
-            end
-        }, {
-            text = _("OK"),
-            is_enter_default = true,
-            callback = function()
-                local userInput = dialog:getInputText()
-                if userInput == self.password then
-                    self.locked = false
-                    UIManager:close(dialog)
-                else
+        buttons = {{
+            {
+                text = _("Cancel"),
+                callback = function()
                     UIManager:show(InfoMessage:new{
-                        text = _("Wrong password! Try again."),
+                        text = _("You must enter the correct password!"),
                         timeout = 1
                     })
                     UIManager:close(dialog)
                     self:showPasswordPrompt()
                 end
-            end
-        }}}
+            },
+            {
+                text = _("OK"),
+                is_enter_default = true,
+                callback = function()
+                    local userInput = dialog:getInputText()
+                    if userInput == self.password then
+                        self.locked = false
+                        UIManager:close(dialog)
+                    else
+                        UIManager:show(InfoMessage:new{
+                            text = _("Wrong password! Try again."),
+                            timeout = 1
+                        })
+                        UIManager:close(dialog)
+                        self:showPasswordPrompt()
+                    end
+                end
+            }
+        }}
     }
     UIManager:show(dialog)
     dialog:onShowKeyboard() -- Immediately open the on-screen keyboard
