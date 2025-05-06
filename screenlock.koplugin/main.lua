@@ -1,13 +1,15 @@
 local Blitbuffer = require("ffi/blitbuffer")
 
+local _ = require("gettext")
 local Device = require("device")
 local Dispatcher = require("dispatcher")
+local DataStorage = require("datastorage")
+local LuaSettings = require("luasettings")
+
 local UIManager = require("ui/uimanager")
 local WidgetContainer = require("ui/widget/container/widgetcontainer")
-
 local InputDialog = require("ui/widget/inputdialog")
 local InfoMessage = require("ui/widget/infomessage")
-local _ = require("gettext")
 
 local Screen = Device.screen
 
@@ -29,12 +31,35 @@ end
 local ScreenLock = WidgetContainer:extend {
     name = "screenlock_inputdialog_buttons",
     is_doc_only = false,
-    background_widget = nil,
 
-    locked = false,     -- Track locked state
+    locked = false,
+    background_widget = nil,
+    settings_file = DataStorage:getSettingsDir() .. "/screen_lock.lua",
+    settings = nil,
+
     password = "1234",  -- Your hard-coded password
     hide_content = true -- Hide screen content before password is entered
 }
+
+function ScreenLock:loadSettings()
+    if self.settings then
+        return
+    end
+
+    self.settings = LuaSettings:open(self.settings_file)
+
+    self.password = self.settings:readSetting("password") or "1234"
+    self.hide_content = self.settings:readSetting("hide_content") == true
+end
+
+function ScreenLock:onFlushSettings()
+    if self.settings then
+        self.settings:saveSetting("password", self.password)
+        self.settings:saveSetting("hide_content", self.hide_content)
+
+        self.settings:flush()
+    end
+end
 
 -- Register dispatcher actions
 function ScreenLock:onDispatcherRegisterActions()
@@ -48,6 +73,8 @@ end
 
 -- Initialize widget and register wakeup-handler
 function ScreenLock:init()
+    self:loadSettings()
+
     -- Initialize fullscreen widget
     self.background_widget = FullscreenOverlay:new()
 
@@ -218,13 +245,23 @@ function ScreenLock:addToMainMenu(menu_items)
                 callback = function()
                     self:lockScreen()
                 end,
+                separator = true,
             },
             {
                 text = _("Change password"),
                 callback = function()
                     self:changePassword()
                 end,
-            }
+            },
+            {
+                text = _("Hide screen content"),
+                checked_func = function()
+                    return self.hide_content
+                end,
+                callback = function()
+                    self.hide_content = not self.hide_content
+                end,
+            },
         }
     }
 end
