@@ -4,6 +4,6 @@
     "~/koreader-base/ffi",
     "~/koreader/frontend"
   ],
-  "runtime.version": "Lua 5.1",
+  "runtime.version": "LuaJIT",
   "hint.enable": false
 }

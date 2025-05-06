@@ -61,6 +61,7 @@ function ScreenLock:init()
     local originalResume = self.onResume
     self.onResume = function(self)
         if originalResume then originalResume(self) end
+
         if not self.locked then
             self:lockScreen()
         end
@@ -86,9 +87,7 @@ function ScreenLock:showPasswordPrompt()
     dialog = InputDialog:new {
         title = _("Enter Password"),
         input = "",
-        maskinput = true,
         text_type = "password",
-        hint = _("Password"),
         buttons = { {
             {
                 text = _("Cancel"),
@@ -136,13 +135,97 @@ function ScreenLock:onLockScreenButtons()
     return true
 end
 
+function ScreenLock:changePassword()
+    -- Ask for old password
+    local old_dialog
+    old_dialog = InputDialog:new {
+        title = _("Enter old password"),
+        input = "",
+        text_type = "password",
+        buttons = { {
+            {
+                text = _("Cancel"),
+                callback = function()
+                    UIManager:close(old_dialog)
+                end
+            },
+            {
+                text = _("OK"),
+                is_enter_default = true,
+                callback = function()
+                    local old_password_input = old_dialog:getInputText()
+                    if old_password_input == self.password then
+                        UIManager:close(old_dialog)
+
+                        -- Ask for new password
+                        local new_dialog
+                        new_dialog = InputDialog:new {
+                            title = _("Enter new password"),
+                            input = "",
+                            text_type = "password",
+                            buttons = { {
+                                {
+                                    text = _("Cancel"),
+                                    callback = function()
+                                        UIManager:close(new_dialog)
+                                    end
+                                },
+                                {
+                                    text = _("OK"),
+                                    is_enter_default = true,
+                                    callback = function()
+                                        local new_password_input = new_dialog:getInputText()
+                                        self.password = new_password_input
+
+                                        UIManager:show(InfoMessage:new {
+                                            text = _("Password changed!"),
+                                            timeout = 1
+                                        })
+
+                                        UIManager:close(new_dialog)
+                                    end
+                                }
+                            } }
+                        }
+
+                        UIManager:show(new_dialog)
+                        new_dialog:onShowKeyboard()
+                    else
+                        UIManager:show(InfoMessage:new {
+                            text = _("Wrong password! Try again."),
+                            timeout = 1
+                        })
+
+                        UIManager:close(old_dialog)
+                        self:changePassword()
+                    end
+                end
+            }
+        } }
+    }
+
+    UIManager:show(old_dialog)
+    old_dialog:onShowKeyboard()
+end
+
 -- Register main menu entry
 function ScreenLock:addToMainMenu(menu_items)
     menu_items.screenlock_inputdialog_buttons = {
-        text = _("Lock Screen"),
-        callback = function()
-            self:lockScreen()
-        end
+        text = _("Screenlock"),
+        sub_item_table = {
+            {
+                text = _("Lock now"),
+                callback = function()
+                    self:lockScreen()
+                end,
+            },
+            {
+                text = _("Change password"),
+                callback = function()
+                    self:changePassword()
+                end,
+            }
+        }
     }
 end
 
