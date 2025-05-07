@@ -1,4 +1,5 @@
 local Blitbuffer = require("ffi/blitbuffer")
+local sha2 = require("ffi/sha2")
 
 local _ = require("gettext")
 local Device = require("device")
@@ -12,6 +13,7 @@ local InputDialog = require("ui/widget/inputdialog")
 local InfoMessage = require("ui/widget/infomessage")
 
 local Screen = Device.screen
+local DefaultPassword = sha2.sha256("1234")
 
 --[[ Fullscreen Overlay Widget ]]
 
@@ -37,8 +39,8 @@ local ScreenLock = WidgetContainer:extend {
     settings_file = DataStorage:getSettingsDir() .. "/screen_lock.lua",
     settings = nil,
 
-    password = "1234",  -- Your hard-coded password
-    hide_content = true -- Hide screen content before password is entered
+    password_hash = DefaultPassword,
+    hide_content = true
 }
 
 function ScreenLock:loadSettings()
@@ -48,13 +50,13 @@ function ScreenLock:loadSettings()
 
     self.settings = LuaSettings:open(self.settings_file)
 
-    self.password = self.settings:readSetting("password") or "1234"
+    self.password_hash = self.settings:readSetting("password_hash") or DefaultPassword
     self.hide_content = self.settings:readSetting("hide_content") == true
 end
 
 function ScreenLock:onFlushSettings()
     if self.settings then
-        self.settings:saveSetting("password", self.password)
+        self.settings:saveSetting("password_hash", self.password_hash)
         self.settings:saveSetting("hide_content", self.hide_content)
 
         self.settings:flush()
@@ -132,8 +134,10 @@ function ScreenLock:showPasswordPrompt()
                 text = _("OK"),
                 is_enter_default = true,
                 callback = function()
-                    local userInput = dialog:getInputText()
-                    if userInput == self.password then
+                    local password_input = dialog:getInputText()
+                    local password_hash = sha2.sha256(password_input)
+
+                    if password_hash == self.password_hash then
                         self.locked = false
 
                         UIManager:close(dialog)
@@ -156,12 +160,13 @@ function ScreenLock:showPasswordPrompt()
     dialog:onShowKeyboard() -- Immediately open the on-screen keyboard
 end
 
--- Dispatch handler
+-- Dispatch handler when screen is locked
 function ScreenLock:onLockScreenButtons()
     self:lockScreen()
     return true
 end
 
+-- Shows a dialog to change the password
 function ScreenLock:changePassword()
     -- Ask for old password
     local old_dialog
@@ -181,7 +186,9 @@ function ScreenLock:changePassword()
                 is_enter_default = true,
                 callback = function()
                     local old_password_input = old_dialog:getInputText()
-                    if old_password_input == self.password then
+                    local old_pasword_hash = sha2.sha256(old_password_input)
+
+                    if old_pasword_hash == self.password_hash then
                         UIManager:close(old_dialog)
 
                         -- Ask for new password
@@ -202,7 +209,9 @@ function ScreenLock:changePassword()
                                     is_enter_default = true,
                                     callback = function()
                                         local new_password_input = new_dialog:getInputText()
-                                        self.password = new_password_input
+                                        local new_password_hash = sha2.sha256(new_password_input)
+
+                                        self.password_hash = new_password_hash
 
                                         UIManager:show(InfoMessage:new {
                                             text = _("Password changed!"),
