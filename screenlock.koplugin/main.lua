@@ -11,6 +11,7 @@ local UIManager = require("ui/uimanager")
 local WidgetContainer = require("ui/widget/container/widgetcontainer")
 local InputDialog = require("ui/widget/inputdialog")
 local InfoMessage = require("ui/widget/infomessage")
+local VirtualKeyboard = require("ui/widget/virtualkeyboard")
 
 local Screen = Device.screen
 local DefaultPassword = sha2.sha256("1234")
@@ -113,6 +114,7 @@ end
 -- Shows the password prompt and prevents escaping
 function ScreenLock:showPasswordPrompt()
     local dialog
+    self:addKeyboard()
     dialog = InputDialog:new {
         title = _("Enter Password"),
         input = "",
@@ -142,6 +144,7 @@ function ScreenLock:showPasswordPrompt()
 
                         UIManager:close(dialog)
                         UIManager:close(self.background_widget, "full")
+                        self:restoreKeyboard()
                     else
                         UIManager:show(InfoMessage:new {
                             text = _("Wrong password! Try again."),
@@ -149,6 +152,7 @@ function ScreenLock:showPasswordPrompt()
                         })
 
                         UIManager:close(dialog)
+                        self:restoreKeyboard()
                         self:showPasswordPrompt()
                     end
                 end
@@ -168,6 +172,7 @@ end
 
 -- Shows a dialog to change the password
 function ScreenLock:changePassword()
+    self:addKeyboard()
     -- Ask for old password
     local old_dialog
     old_dialog = InputDialog:new {
@@ -179,6 +184,7 @@ function ScreenLock:changePassword()
                 text = _("Cancel"),
                 callback = function()
                     UIManager:close(old_dialog)
+                    self:restoreKeyboard()
                 end
             },
             {
@@ -202,6 +208,7 @@ function ScreenLock:changePassword()
                                     text = _("Cancel"),
                                     callback = function()
                                         UIManager:close(new_dialog)
+                                        self:restoreKeyboard()
                                     end
                                 },
                                 {
@@ -219,6 +226,7 @@ function ScreenLock:changePassword()
                                         })
 
                                         UIManager:close(new_dialog)
+                                        self:restoreKeyboard()
                                     end
                                 }
                             } }
@@ -233,6 +241,7 @@ function ScreenLock:changePassword()
                         })
 
                         UIManager:close(old_dialog)
+                        self:restoreKeyboard()
                         self:changePassword()
                     end
                 end
@@ -273,6 +282,20 @@ function ScreenLock:addToMainMenu(menu_items)
             },
         }
     }
+end
+
+function ScreenLock:addKeyboard()
+    VirtualKeyboard.lang_to_keyboard_layout[_ "ScreenLockPassword"] = "password_keyboard"
+    VirtualKeyboard.layout_file = "password_keyboard"
+    self.original_keyboard_layout = G_reader_settings:readSetting("keyboard_layout")
+    G_reader_settings:saveSetting("keyboard_layout", "ScreenLockPassword")
+end
+
+function ScreenLock:restoreKeyboard()
+    VirtualKeyboard.lang_to_keyboard_layout[_ "ScreenLockPassword"] = nil
+    VirtualKeyboard.layout_file = nil
+
+    G_reader_settings:saveSetting("keyboard_layout", self.original_keyboard_layout)
 end
 
 return ScreenLock
