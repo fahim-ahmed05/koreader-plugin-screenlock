@@ -13,7 +13,7 @@ This plugin lets you lock your screen with a password, either triggered from the
 
 ## Preview
 
-<img src=".github/assets/preview.png" height="500"/>
+<img src=".github/assets/preview-pin.png" height="500"/>
 
 ## Note
 The plugin will automatically activate on resume from suspend. There is also a **Screen Lock** menu entry.
