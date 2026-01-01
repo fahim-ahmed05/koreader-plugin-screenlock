@@ -123,13 +123,8 @@ function ScreenLock:showPasswordPrompt()
             {
                 text = _("Cancel"),
                 callback = function()
-                    UIManager:show(InfoMessage:new {
-                        text = _("You must enter the correct password!"),
-                        timeout = 1
-                    })
-
-                    UIManager:close(dialog)
-                    self:showPasswordPrompt()
+                    -- Sleep the device
+                    UIManager:suspend()
                 end
             },
             {
@@ -261,7 +256,8 @@ function ScreenLock:addToMainMenu(menu_items)
             {
                 text = _("Lock now"),
                 callback = function()
-                    self:lockScreen()
+                    -- Sleep the device
+                    UIManager:suspend()
                 end,
                 separator = true,
             },
