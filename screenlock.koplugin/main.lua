@@ -192,9 +192,9 @@ function ScreenLock:changePassword()
                 is_enter_default = true,
                 callback = function()
                     local old_password_input = old_dialog:getInputText()
-                    local old_pasword_hash = sha2.sha256(old_password_input)
+                    local old_password_hash = sha2.sha256(old_password_input)
 
-                    if old_pasword_hash == self.password_hash then
+                    if old_password_hash == self.password_hash then
                         UIManager:close(old_dialog)
 
                         -- Ask for new password
