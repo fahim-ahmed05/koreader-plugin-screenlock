@@ -1,19 +1,61 @@
 # KOReader Plugin: ScreenLock
-This plugin lets you lock your screen with a password, either triggered from the menu or automatically upon device wake-up.
 
->
+This plugin adds a simple pin-based lock screen to KOReader.
+
 > [!CAUTION]  
-> **This plugin is made for basic protection, not security — it may not protect your device from an experienced attacker. Always keep your device out of the hands of real threats.**
->
+> This plugin provides **basic protection only**.  
+> It is **not a security solution** and will not stop a determined or technically skilled attacker.  
+> Do not rely on it to protect sensitive data.
 
-## Setup
-1. Put `screenlock.koplugin` into the `kodreader/plugins` directory.
-2. In KOReader, open the menu and select "Screenlock".
-3. Press "Change password" to set your password. The default password is **1234**.
+## Features
+
+- Lock KOReader with a password
+- Automatically locks after device suspend / resume
+- Optional blank (white) screen to hide document contents
+- On-screen password keyboard
+- Menu actions for locking and password management
+
+## Installation
+
+1. Copy the `screenlock.koplugin` folder into:
+   ```
+   koreader/plugins/
+   ```
+2. Start (or restart) KOReader.
+3. Open the KOReader menu and select **ScreenLock**.
+
+## Usage
+
+### Lock the screen
+
+- Open the KOReader menu
+- Go to **ScreenLock**
+- Select **Lock now**
+
+> or
+
+- Press power/lock button
+
+### Change the password
+
+- Open **ScreenLock** in the menu
+- Select **Change password**
+- Enter your current password, then set a new one
+
+> **Default password:** `1234`
+
+## Behavior Notes
+
+- The lock screen **automatically activates when the device resumes from sleep**
+- Pressing **Cancel** on the password prompt puts the device back to sleep
+- If enabled, screen contents are hidden while locked
 
 ## Preview
 
 <img src=".github/assets/preview-pin.png" height="500"/>
 
-## Note
-The plugin will automatically activate on resume from suspend. There is also a **Screen Lock** menu entry.
+## Limitations
+
+- This plugin does **not encrypt files or memory**
+- It only protects access within KOReader
+- Removing the plugin or editing settings files can bypass the lock
